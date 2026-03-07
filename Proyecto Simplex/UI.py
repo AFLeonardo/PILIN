@@ -3,7 +3,7 @@ from tkinter import messagebox
 from fractions import Fraction
 from typing import List, Callable, Optional
 
-
+# Clase para almacenar el modelo de programación lineal
 class LPModel:
     def __init__(self):
         self.sense = None       # 'max' o 'min'
@@ -15,7 +15,9 @@ class LPModel:
         self.n = 0
         self.m = 0
 
-
+# ──────────────────────────────────────────────────────────
+# Ventana principal para ingresar dimensiones y lanzar el proceso simplex
+# ──────────────────────────────────────────────────────────
 class SimplexUI(ctk.CTk):
     def __init__(self, solve_callback: Optional[Callable] = None):
         super().__init__()
@@ -26,6 +28,7 @@ class SimplexUI(ctk.CTk):
         self.geometry("500x300")
         self.ingresar_dimensiones()
 
+    # Construye formulario para ingresar n y m
     def ingresar_dimensiones(self):
         self.label = ctk.CTkLabel(self, text="Ingresa el número de variables y restricciones")
         self.label.pack(pady=20)
@@ -48,6 +51,7 @@ class SimplexUI(ctk.CTk):
         self.ok_button = ctk.CTkButton(self, text="Aceptar", command=self.start_simplex)
         self.ok_button.pack(pady=20)
 
+    # Valida n y m, luego abre la ventana de ingresar los datos del modelo
     def start_simplex(self):
         try:
             n = int(self.entry_n.get().strip())
@@ -67,8 +71,9 @@ class SimplexUI(ctk.CTk):
 
 
 # ──────────────────────────────────────────────────────────
-# Ventana de ingreso de datos
+# Ventana 2 de ingreso de datos
 # ──────────────────────────────────────────────────────────
+
 
 class Ingresar_valores(ctk.CTkToplevel):
     def __init__(self, master, n: int, m: int, solve_callback=None):
@@ -78,8 +83,8 @@ class Ingresar_valores(ctk.CTkToplevel):
         self.solve_callback = solve_callback
 
         self.title("Ingresar valores - Simplex")
-        self.geometry("1000x700")
-        self.grab_set()
+        self.geometry("900x700")
+        self.grab_set() # Hace esta ventana modal
 
         self.entries_A: List[List[ctk.CTkEntry]] = []
         self.entries_b: List[ctk.CTkEntry] = []
