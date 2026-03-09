@@ -2,23 +2,6 @@
 Método Simplex en Dos Fases para resolver Programación Lineal.
 Soporta: Max/Min, restricciones <=, >= y =, coeficientes negativos y b<0.
 Usa aritmética exacta con Fraction para resultados sin error de punto flotante.
-
-Bugs corregidos respecto a la versión anterior:
-  BUG 1 — _simplex_iterations: `obj = tableau[-1]` se reasigna en cada
-           iteración. Antes quedaba como referencia stale tras el pivoteo,
-           causando que el criterio de entrada nunca se actualizara y el
-           algoritmo ciclara hasta MAX_ITER dando resultados incorrectos.
-
-  BUG 2 — _build_tableau con b[i] < 0: se normalizan las restricciones
-           (multiplicar fila por -1 y voltear la relación) ANTES de asignar
-           variables de holgura/exceso/artificiales. Antes se asignaban con
-           la relación original y luego se intentaba corregir, dejando el
-           tableau inválido y reportando Infactible incorrectamente.
-
-  BUG 3 — _phase2 permitía que las variables artificiales re-entraran a la
-           base porque sus coeficientes en la fila objetivo podían ser
-           negativos. Ahora Phase 2 solo considera columnas de variables de
-           decisión y de holgura/exceso como candidatas a entrar.
 """
 
 from fractions import Fraction
@@ -91,10 +74,6 @@ class SimplexSolver:
     def _build_tableau(self, n, m):
         """
         Construye el tableau inicial.
-
-        FIX BUG 2: si b[i] < 0, multiplica la fila por -1 y voltea la
-        relación ANTES de decidir qué variables agregar. Así siempre
-        se trabaja con b >= 0 y las variables se asignan correctamente.
         """
         A   = self.model.matrix_A
         b   = self.model.vector_b
@@ -191,9 +170,9 @@ class SimplexSolver:
 
     def _phase2(self, tableau, basis, n, n_slack, n_art, m, c_obj):
         """
-        Optimiza la función objetivo original sobre la SBF de Fase 1.
+        Optimiza la función objetivo original.
 
-        FIX BUG 3: allowed_cols excluye columnas artificiales para que
+        allowed_cols excluye columnas artificiales para que
         no puedan re-entrar a la base durante la optimización.
         """
         cols = len(tableau[0])
@@ -231,7 +210,7 @@ class SimplexSolver:
 
     def _simplex_iterations(self, tableau, basis, m, allowed_cols=None):
         """
-        FIX BUG 1: `obj = tableau[-1]` se reasigna al inicio de CADA
+        obj = tableau[-1]` se reasigna al inicio de CADA
         iteración para que siempre refleje el estado actual del tableau.
 
         allowed_cols: columnas candidatas a entrar (None = todas menos RHS).
@@ -243,9 +222,7 @@ class SimplexSolver:
         for _ in range(self.MAX_ITER):
             self.result.iterations += 1
 
-            obj = tableau[-1]   # re-leer en cada iteración (FIX BUG 1)
-
-            # Dantzig: columna entrante = coeficiente más negativo
+            obj = tableau[-1]   # re-leer en cada iteración
             pivot_col = -1
             min_val   = Fraction(0)
             for j in allowed_cols:
