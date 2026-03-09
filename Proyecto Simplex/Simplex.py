@@ -170,7 +170,7 @@ class SimplexSolver:
 
     def _phase2(self, tableau, basis, n, n_slack, n_art, m, c_obj):
         """
-        Optimiza la función objetivo original.
+        Optimiza la función objetivo original sobre la SBF de Fase 1.
 
         allowed_cols excluye columnas artificiales para que
         no puedan re-entrar a la base durante la optimización.
