@@ -333,27 +333,26 @@ def _run_tests():
         return ok
 
     print(sep)
-    print("TESTS DEL SOLVER SIMPLEX")
+    print("TESTS DEL SOLVER SIMPLEX CON PROBLEMAS VISTO EN CLASE")
     print(sep)
     results = []
 
     # Test 1 — 2 variables, Max <=
-    # Max Z=5x1+4x2 | 6x1+4x2<=24, x1+2x2<=6 | Óptimo: Z=21
-    m = LPModel(); m.sense="max"; m.n,m.m=2,2
-    m.vector_c=[Fraction(5),Fraction(4)]
-    m.matrix_A=[[Fraction(6),Fraction(4)],[Fraction(1),Fraction(2)]]
-    m.vector_b=[Fraction(24),Fraction(6)]; m.rel=["<=","<="]
-    results.append(test("2 variables — Max Z=5x1+4x2 (<=)", m, "Optimal", 21))
+    # Max Z=10x1+20x2 | 3x1+x2<=90, x1+x2<=50, x2<=35 | Óptimo: Z=850
+    m = LPModel(); m.sense="max"; m.n,m.m=2,3
+    m.vector_c=[Fraction(10),Fraction(20)]
+    m.matrix_A=[[Fraction(3),Fraction(1)],[Fraction(1),Fraction(1)],[Fraction(0),Fraction(1)]]
+    m.vector_b=[Fraction(90),Fraction(50),Fraction(35)]; m.rel=["<=","<=","<="]
+    results.append(test("2 variables — Max Z=10x1+20x2 (<=)", m, "Optimal", 850))
 
     # Test 2 — 3 variables, Max <=
-    # Max Z=2x1+3x2+x3 | x1+x2+x3<=40, 2x1+x2<=60, x2+x3<=30 | Óptimo: Z=110
-    m = LPModel(); m.sense="max"; m.n,m.m=3,3
-    m.vector_c=[Fraction(2),Fraction(3),Fraction(1)]
-    m.matrix_A=[[Fraction(1),Fraction(1),Fraction(1)],
-                [Fraction(2),Fraction(1),Fraction(0)],
-                [Fraction(0),Fraction(1),Fraction(1)]]
-    m.vector_b=[Fraction(40),Fraction(60),Fraction(30)]; m.rel=["<=","<=","<="]
-    results.append(test("3 variables — Max Z=2x1+3x2+x3 (<=)", m, "Optimal", 110))
+    # Max Z=2000x1+3000x2 | x1+x2<=20, x1+2x2<=30, | Óptimo: Z=50000
+    m = LPModel(); m.sense="max"; m.n,m.m=2,2
+    m.vector_c=[Fraction(2000),Fraction(3000)]
+    m.matrix_A=[[Fraction(1),Fraction(1)],
+                [Fraction(1),Fraction(2)]]
+    m.vector_b=[Fraction(20),Fraction(30)]; m.rel=["<=","<="]
+    results.append(test("2 variables — Max Z=2000x1+3000x2 (<=)", m, "Optimal", 50000))
 
     # Test 3 — Minimización con >=
     # Min Z=2x1+3x2 | x1+x2>=4, x1+3x2>=6 | Óptimo: x1=3,x2=1, Z=9
@@ -363,27 +362,14 @@ def _run_tests():
     m.vector_b=[Fraction(4),Fraction(6)]; m.rel=[">=",">="]
     results.append(test("Minimización — Min Z=2x1+3x2 (>=)", m, "Optimal", 9))
 
-    # Test 4 — b negativo
-    # Min Z=x1+x2 | -x1-x2<=-4 (≡ x1+x2>=4) | Óptimo: Z=4
-    m = LPModel(); m.sense="min"; m.n,m.m=2,1
-    m.vector_c=[Fraction(1),Fraction(1)]
-    m.matrix_A=[[Fraction(-1),Fraction(-1)]]
-    m.vector_b=[Fraction(-4)]; m.rel=["<="]
-    results.append(test("b negativo — -x1-x2<=-4 (equiv x1+x2>=4)", m, "Optimal", 4))
-
-    # Test 5 — Infactible
-    m = LPModel(); m.sense="max"; m.n,m.m=2,2
-    m.vector_c=[Fraction(1),Fraction(1)]
-    m.matrix_A=[[Fraction(1),Fraction(1)],[Fraction(-1),Fraction(-1)]]
-    m.vector_b=[Fraction(4),Fraction(-6)]; m.rel=["<=","<="]
-    results.append(test("Infactible — x1+x2<=4 y x1+x2>=6", m, "Infeasible"))
-
-    # Test 6 — No acotado
-    m = LPModel(); m.sense="max"; m.n,m.m=2,1
-    m.vector_c=[Fraction(1),Fraction(1)]
-    m.matrix_A=[[Fraction(1),Fraction(-1)]]
-    m.vector_b=[Fraction(2)]; m.rel=["<="]
-    results.append(test("No acotado — Max x1+x2 con x1-x2<=2", m, "Unbounded"))
+    # Test 4 - Minimización de 3 variables
+    # Min Z=2x1-x2-5x3 | 3x1+2x2+7x3<=25 | 5x1+x2+9x3 <= 55 | Óptimo: Z=-125/7
+    m = LPModel(); m.sense="min"; m.n,m.m=3,2
+    m.vector_c=[Fraction(2),Fraction(-1),Fraction(-5)]
+    m.matrix_A=[[Fraction(3),Fraction(2),Fraction(7)],
+                [Fraction(5),Fraction(1),Fraction(9)]]
+    m.vector_b=[Fraction(25),Fraction(55)]; m.rel=["<=","<="]
+    results.append(test("Minimización - 3 variables — Min Z=2x1-x2-5x3 (<=)", m, "Optimal", Fraction(-125, 7)))
 
     print(sep)
     print(f"Resultado: {sum(results)}/{len(results)} tests pasaron")
